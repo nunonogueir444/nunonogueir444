@@ -94,14 +94,9 @@ def main():
     grid_html.append("</tr></table>")
     grid_html_str = ''.join(grid_html)
     with open("README.md", "w", encoding="utf-8") as f:
-        # Use a very light bar or just extra space
-        # Option 1: Just space
-        # f.write(summary + "\n<br><br>\n" + grid_html_str)
-        # Option 1: Just space
-        # Center tables using margin:auto and display:block
-        summary_centered = summary.replace('<table', "<table style='margin:auto;display:block;'", 1)
-        # Do not override the style attribute for the repositories table
-        grid_html_centered = grid_html_str
+        # Wrap both tables in <div align="center"> for GitHub centering
+        summary_centered = f'<div align="center">{summary}</div>'
+        grid_html_centered = f'<div align="center">{grid_html_str}</div>'
         f.write(summary_centered + "<br>" + grid_html_centered)
     print("README.md generated with totals and per-repo breakdown.")
 
