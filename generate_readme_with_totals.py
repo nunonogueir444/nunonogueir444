@@ -1,5 +1,3 @@
-REPO_TABLE_WIDTH = "840px"  # Set your desired width here
-REPO_TABLE_HEIGHT = "1600px"  # Set your desired height here
 
 import requests
 import re
@@ -8,7 +6,7 @@ from collections import defaultdict
 
 GITHUB_USERNAME = "nunonogueir444"
 GITHUB_API = "https://api.github.com"
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")  # Use environment variable for token
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")  # Use environment variable for token
 
 headers = {"Accept": "application/vnd.github.v3+json"}
 if GITHUB_TOKEN:
@@ -39,13 +37,13 @@ def generate_markdown_and_collect_totals(repos):
         html_url = repo['html_url']
         languages = get_languages(full_name)
         if not languages:
-            md.append(f"\n<table><tr><th colspan='2' style='text-align:center;font-size:1.1em;'><a href='{html_url}'>{name}</a></th></tr><tr><th style='text-align:center;'></th><th style='text-align:center;'></th></tr><tr><td colspan='2' style='text-align:center;'>No code detected.</td></tr></table>\n")
+            md.append(f"\n<table><tr><th colspan='2' style='text-align:center;font-size:1.1em;'><a href='{html_url}'>{name}</a></th></tr><tr><th></th><th></th></tr><tr><td colspan='2'>No code detected.</td></tr></table>\n")
             continue
         total = sum(languages.values())
-        md.append(f"\n<table><tr><th colspan='2' style='text-align:center;font-size:1.1em;'><a href='{html_url}'>{name}</a></th></tr><tr><th style='text-align:center;'></th><th style='text-align:center;'></th></tr>")
+        md.append(f"\n<table><tr><th colspan='2' style='text-align:center;font-size:1.1em;'><a href='{html_url}'>{name}</a></th></tr><tr><th></th><th></th></tr>")
         for lang, lines in sorted(languages.items(), key=lambda x: -x[1]):
             percent = lines / total * 100 if total else 0
-            md.append(f"<tr><td style='text-align:center;'>{lang}</td><td style='text-align:center;'>{percent:.1f}%</td></tr>")
+            md.append(f"<tr><td>{lang}</td><td>{percent:.1f}%</td></tr>")
             lang_totals[lang] += lines
         md.append("</table>\n")
     return ''.join(md), lang_totals
@@ -66,10 +64,10 @@ def generate_totals_markdown(lang_totals):
     for row in rows:
         html.append("<tr>")
         for cell in row:
-            html.append(f"<td style='text-align:center;'>{cell}</td>")
+            html.append(f"<td>{cell}</td>")
         # Fill empty cells if needed
         for _ in range(5 - len(row)):
-            html.append("<td style='text-align:center;'></td>")
+            html.append("<td></td>")
         html.append("</tr>")
     html.append("</table>\n")
     return ''.join(html)
@@ -82,22 +80,21 @@ def main():
     repo_tables = md.split('\n<table')
     repo_tables = [('<table' + t) if i > 0 else t for i, t in enumerate(repo_tables) if t.strip()]
     grid_rows = [repo_tables[i:i+3] for i in range(0, len(repo_tables), 3)]
-    grid_html = [f"<table style='margin:auto;display:block;width:{REPO_TABLE_WIDTH};height:{REPO_TABLE_HEIGHT};table-layout:fixed;'>"]
+    grid_html = ["<table style='table-layout:fixed;'>"]
     grid_html.append("<tr><th colspan='3' style='text-align:center;font-size:1.2em;'>Repositories</th></tr><tr>")
     for row in grid_rows:
         for table in row:
-            grid_html.append("<td style='width:33%;text-align:center;vertical-align:middle;padding-top:18px;padding-bottom:0;'>" + "<div style='display:inline-block;'>" + table + "</div></td>")
+            grid_html.append("<td valign='top' style='width:33%;'>" + table + "</td>")
         # Fill empty cells if needed
         for _ in range(3 - len(row)):
-            grid_html.append("<td style='width:33%;text-align:center;vertical-align:middle;padding-top:18px;padding-bottom:0;'></td>")
-        grid_html.append("</tr><tr>")
-    grid_html.append("</tr></table>")
+            grid_html.append("<td style='width:33%;'></td>")
+        grid_html.append("</tr>")
+    grid_html.append("</table>")
     grid_html_str = ''.join(grid_html)
     with open("README.md", "w", encoding="utf-8") as f:
-        # Wrap both tables in <div align="center"> for GitHub centering
         summary_centered = f'<div align="center">{summary}</div>'
         grid_html_centered = f'<div align="center">{grid_html_str}</div>'
-        f.write(summary_centered + "<br>" + grid_html_centered)
+        f.write(summary_centered + "\n<br>\n" + grid_html_centered)
     print("README.md generated with totals and per-repo breakdown.")
 
 if __name__ == "__main__":

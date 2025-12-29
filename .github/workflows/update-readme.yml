@@ -3,7 +3,7 @@ name: Update README with Language Stats
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0'  # Runs weekly
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
 
 jobs:
   update-readme:
