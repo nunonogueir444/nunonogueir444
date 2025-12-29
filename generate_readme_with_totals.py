@@ -39,13 +39,13 @@ def generate_markdown_and_collect_totals(repos):
         html_url = repo['html_url']
         languages = get_languages(full_name)
         if not languages:
-            md.append(f"\n<table><tr><th colspan='2' style='text-align:center;font-size:1.1em;'><a href='{html_url}'>{name}</a></th></tr><tr><th></th><th></th></tr><tr><td colspan='2'>No code detected.</td></tr></table>\n")
+            md.append(f"\n<table><tr><th colspan='2' style='text-align:center;font-size:1.1em;'><a href='{html_url}'>{name}</a></th></tr><tr><th style='text-align:center;'></th><th style='text-align:center;'></th></tr><tr><td colspan='2' style='text-align:center;'>No code detected.</td></tr></table>\n")
             continue
         total = sum(languages.values())
-        md.append(f"\n<table><tr><th colspan='2' style='text-align:center;font-size:1.1em;'><a href='{html_url}'>{name}</a></th></tr><tr><th></th><th></th></tr>")
+        md.append(f"\n<table><tr><th colspan='2' style='text-align:center;font-size:1.1em;'><a href='{html_url}'>{name}</a></th></tr><tr><th style='text-align:center;'></th><th style='text-align:center;'></th></tr>")
         for lang, lines in sorted(languages.items(), key=lambda x: -x[1]):
             percent = lines / total * 100 if total else 0
-            md.append(f"<tr><td>{lang}</td><td>{percent:.1f}%</td></tr>")
+            md.append(f"<tr><td style='text-align:center;'>{lang}</td><td style='text-align:center;'>{percent:.1f}%</td></tr>")
             lang_totals[lang] += lines
         md.append("</table>\n")
     return ''.join(md), lang_totals
@@ -66,10 +66,10 @@ def generate_totals_markdown(lang_totals):
     for row in rows:
         html.append("<tr>")
         for cell in row:
-            html.append(f"<td>{cell}</td>")
+            html.append(f"<td style='text-align:center;'>{cell}</td>")
         # Fill empty cells if needed
         for _ in range(5 - len(row)):
-            html.append("<td></td>")
+            html.append("<td style='text-align:center;'></td>")
         html.append("</tr>")
     html.append("</table>\n")
     return ''.join(html)
